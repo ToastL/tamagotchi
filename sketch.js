@@ -1,27 +1,9 @@
+//initial variables
+
 let tamagochiState = 2
 let happyCount = 20
 
-let freddyHappy,
-    freddyMid,
-    freddySad
-
-const tamagochi = {
-  //happy
-  0: () => {
-    fill(0, 255, 0)
-    image(freddyHappy, 20, 100, 360, 360)
-  },
-  //mid
-  1: () => {
-    fill(0, 0, 255)
-    image(freddyMid, 20, 100, 360, 360)
-  },
-  //sad
-  2: () => {
-    fill(255, 0, 0)
-    image(freddySad, 20, 100, 360, 360)
-  }
-}
+const tamagochi = []
 
 let shopOut = false
 
@@ -31,12 +13,12 @@ let timer = 0
 
 let coins = 0
 
-function mMax(num1, num2) {
+function mMax(num1, num2) { // function to return max number if over a number
   if (num1 > num2) return num2
   else return num1
 }
 
-let buttons = [
+let buttons = [ // list of all buttons
   {title: "reset", l: 540, t: 30, w: 120, h: 50, callback: () => timerCount = 0},
   {title: "start", l: 480, t: 300, w: 100, h: 50, callback: () => timerStart = true},
   {title: "stop", l: 620, t: 300, w: 100, h: 50, callback: () => timerStart = false},
@@ -61,6 +43,8 @@ function setup() {
   createCanvas(800, 600)
   textAlign(LEFT)
 
+  // load all data(user data / images)
+
   if (getItem("T_Time")) timerCount = getItem("T_Time")
   if (getItem("T_Timer")) timer = getItem("T_Timer")
   if (getItem("T_Coins")) coins = getItem("T_Coins")
@@ -71,12 +55,12 @@ function setup() {
   buttons[9].title = loadImage("images/mic.jpeg")
   buttons[10].title = loadImage("images/confetti.png")
   buttons[11].title = loadImage("images/pizza.jpeg")
-  freddyHappy = loadImage("images/freddyHappy.png")
-  freddyMid = loadImage("images/freddyMid.gif")
-  freddySad = loadImage("images/freddySad.png")
+  tamagochi[0] = loadImage("images/freddyHappy.png")
+  tamagochi[1] = loadImage("images/freddyMid.gif")
+  tamagochi[2] = loadImage("images/freddySad.png")
 }
 
-function drawBtn(content, x, y, w, h) {
+function drawBtn(content, x, y, w, h) { // function to draw buttons
   fill(255)
   rect(x, y, w, h)
   fill(0)
@@ -89,6 +73,8 @@ function drawBtn(content, x, y, w, h) {
 
 
 function draw() {
+
+  // handle timer
   if (timerStart && timerCount > 0) {
     timerCount -= deltaTime
     timer += deltaTime
@@ -102,11 +88,13 @@ function draw() {
     
   }
 
+  //store items
   storeItem("T_Time", timerCount)
   storeItem("T_Timer", timer)
   storeItem("T_Happy", happyCount)
   storeItem("T_Coins", coins)
 
+  //handle tamagotchi
   if (happyCount >= 0) tamagochiState = 2
   if (happyCount >= 50) tamagochiState = 1
   if (happyCount >= 100) tamagochiState = 0
@@ -116,26 +104,27 @@ function draw() {
     timer = 0
   }
 
+  //format time string
   let secs = `${floor(timerCount/1000 % 60)}`
   let mins = `${floor(timerCount/60000)}`
   if (secs.length == 1) secs = secs.padStart(2, "0");
   if (mins.length == 1) mins = mins.padStart(2, "0");
   let timerTxt = `${mins}:${secs}`
 
+
+  //draw tamagotchi
   background(200)
 
-  //template
   fill(255)
   rect(0, 0, 800, 600)
   line(400, 0, 400, 600)
 
-  //timer text
   rect(530, 200, 150, 50)
   fill(0)
   textSize(45)
   text(timerTxt, 550, 240)
 
-  //coin text
+
   fill(255)
   circle(20, 20, 30)
   fill(0)
@@ -143,6 +132,7 @@ function draw() {
   text("$", 15, 27)
 
   text(coins.toString().padStart(4, "0"), 60, 27)
+
 
   fill(255)
   circle(560, 120, 30)
@@ -152,17 +142,16 @@ function draw() {
 
   text(coins.toString().padStart(4, "0"), 600, 127)
 
-  //happy bar
+  
   text(`Happiness: ${floor(happyCount)}`, 150, 70)
   fill(255)
   rect(50, 80, 300, 10)
   fill(0, 255, 0)
   rect(50, 80, mMax(happyCount/100*300, 300), 10)
 
-  //tamagochi
-  tamagochi[tamagochiState]()
+  image(tamagochi[tamagochiState], 20, 100, 360, 360)
 
-  //store
+
   if (shopOut) {
     fill(255)
     rect(20, 380, 300, 200)
@@ -177,12 +166,12 @@ function draw() {
     text("$1", 250, 480)
   }
 
-  //timer buttons
+  
   for (let i = 0; i < buttons.length; i++) if (!buttons[i].hidden) drawBtn(buttons[i].title, buttons[i].l, buttons[i].t, buttons[i].w, buttons[i].h)
 }
 
 function mouseClicked() {
-  if (mouseButton == "left") {
+  if (mouseButton == "left") { //handle buttons
     for (let i = 0; i < buttons.length; i++) {
       const btn = buttons[i]
       if (!btn.hidden) if (mouseX >= btn.l && mouseX <= btn.l+btn.w && mouseY >= btn.t && mouseY <= btn.t+btn.h) btn.callback()
